@@ -1,6 +1,6 @@
 import uuid
 
-from django.contrib.auth.models import User
+from authentication.models import User
 from django.db import models
 
 from events.constants import ClubTypes, EventTypes
