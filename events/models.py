@@ -42,3 +42,11 @@ class TeamMembers(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="user")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="teams")
     is_leader = models.BooleanField(default=False)
+
+
+
+class Sponsor(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=50)
+    type = models.TextField()
+    image_url = models.URLField()
