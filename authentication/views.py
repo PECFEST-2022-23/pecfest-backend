@@ -17,22 +17,24 @@ class RegisterAPIView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         email = request.data.get("email")
+        data = {"user_status": UserAuthStatus.message}
+
         if User.objects.filter(email=email).exists():
+            data["message"] = "Email Already Registered, Please Login"
             return Response(
-                {"user_status": UserAuthStatus.redirect},
+                data,
                 status=status.HTTP_400_BAD_REQUEST,
             )
         if not serializer.is_valid():
+            data["message"] = "Incorrect Data"
             return Response(
-                {"user_status": UserAuthStatus.incorrect_data},
+                data,
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         user = serializer.save()
-
-        return Response(
-            {"user_status": UserAuthStatus.unverified}, status=status.HTTP_201_CREATED
-        )
+        data["message"] = "Please Verify the link sent on your email"
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class LoginAPIView(GenericAPIView):
@@ -46,22 +48,24 @@ class LoginAPIView(GenericAPIView):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            data["user_status"] = UserAuthStatus.redirect
+            data["user_status"] = UserAuthStatus.message
+            data["message"] = "Email Not Registered, Please Register"
             return Response(
                 data,
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         if not user.check_password(password):
-            data["user_status"] = UserAuthStatus.incorrect_data
+            data["user_status"] = UserAuthStatus.message
+            data["message"] = "Incorrect Password"
             return Response(
                 data,
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         if not user.is_active:
-            data["user_status"] = UserAuthStatus.unverified
-            #
+            data["user_status"] = UserAuthStatus.message
+            data["message"] = "Please Verify the link sent on your email"
             return Response(
                 data,
                 status=status.HTTP_200_OK,
