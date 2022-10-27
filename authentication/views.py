@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from authentication.constants import UserAuthStatus
 from authentication.models import User, UserDetails
 from authentication.serializers import RegisterSerializer, UserSerializer
+from authentication.utils.authutil import AuthenticationUtil
 
 
 class RegisterAPIView(GenericAPIView):
@@ -66,6 +67,7 @@ class LoginAPIView(GenericAPIView):
         if not user.is_active:
             data["user_status"] = UserAuthStatus.message
             data["message"] = "Please Verify the link sent on your email"
+            AuthenticationUtil().send_verification_email(user)
             return Response(
                 data,
                 status=status.HTTP_200_OK,
@@ -84,30 +86,23 @@ class LoginAPIView(GenericAPIView):
         )
 
 
-class VerificationAPIView(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+class VerificationAPIView(GenericAPIView, AuthenticationUtil):
+    permission_classes = (AllowAny,)
 
     def get(self, request, *args, **kwargs):
-        user = request.user
+        enc = request.data.get("token")
+        if not enc and self.is_enc_expired(enc):
+            return Response(
+                {"message": "Verification Link Expired"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        return Response({}, status=status.HTTP_204_NO_CONTENT)
+        data = self.decrypt(enc)
+        user = User.objects.get(email=data["email"])
+        user.is_active = True
+        user.save()
 
-
-# from verify_email.token_manager import TokenManager
-# verification_url = self.token_manager.generate_link(request, inactive_user, useremail)
-# msg = render_to_string(
-#                 self.settings.get('html_message_template', raise_exception=True),
-#                 {"link": verification_url, "inactive_user": inactive_user},
-#                 request=request
-#             )
-# self.__send_email(msg, useremail)
-# subject = self.settings.get('subject')
-#         send_mail(
-#             subject, strip_tags(msg),
-#             from_email=self.settings.get('from_alias'),
-#             recipient_list=[useremail], html_message=msg
-#         )
-
-# from django.core.mail import send_mail
-# from django.template.loader import render_to_string
-# from django.utils.html import strip_tags
+        return Response(
+            {"message": "Account Sucessfully Verified"},
+            status=status.HTTP_204_NO_CONTENT,
+        )
