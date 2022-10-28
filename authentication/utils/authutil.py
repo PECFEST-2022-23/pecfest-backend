@@ -1,4 +1,5 @@
 import os
+import threading
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -39,7 +40,7 @@ class AuthenticationUtil:
 
         return False
 
-    def send_verification_email(self, user):
+    def send_verification_email_thread(self, user):
         data = {"email": user.email}
         enc = self.encrypt(data)
         url = os.getenv("FRONTEND_URL") + "api/auth/verify/" + enc
@@ -51,6 +52,12 @@ class AuthenticationUtil:
             subject="Pecfest Verification",
             message=plain_message,
             from_email=f"Pecfest <{settings.EMAIL_HOST_USER}>",
-            recipient_list=["guptaaman704@gmail.com"],
+            recipient_list=[user.email],
             html_message=html_message,
         )
+
+    def send_verification_email(self, user):
+        if settings.DEVELOPMENT_MODE == "DEV":
+            return
+        t = threading.Thread(target=self.send_verification_email_thread, args=(user))
+        t.start()

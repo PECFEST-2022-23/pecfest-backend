@@ -7,7 +7,11 @@ from rest_framework.response import Response
 
 from authentication.constants import UserAuthStatus
 from authentication.models import User, UserDetails
-from authentication.serializers import RegisterSerializer, UserSerializer
+from authentication.serializers import (
+    OAuthSerializer,
+    RegisterSerializer,
+    UserSerializer,
+)
 from authentication.utils.authutil import AuthenticationUtil
 
 
@@ -79,6 +83,7 @@ class LoginAPIView(GenericAPIView):
             data["user_status"] = UserAuthStatus.completed
 
         data["token"] = AuthToken.objects.create(user)[1]
+        data["user"] = UserSerializer(user).data
 
         return Response(
             data,
@@ -89,7 +94,8 @@ class LoginAPIView(GenericAPIView):
 class VerificationAPIView(GenericAPIView, AuthenticationUtil):
     permission_classes = (AllowAny,)
 
-    def get(self, request, *args, **kwargs):
+    # to verify email
+    def post(self, request, *args, **kwargs):
         enc = request.data.get("token")
         if not enc and self.is_enc_expired(enc):
             return Response(
@@ -104,5 +110,50 @@ class VerificationAPIView(GenericAPIView, AuthenticationUtil):
 
         return Response(
             {"message": "Account Sucessfully Verified"},
-            status=status.HTTP_204_NO_CONTENT,
+            status=status.HTTP_200_OK,
+        )
+
+    # to resend email
+    def patch(self, request, *args, **kwargs):
+        enc = request.data.get("token")
+        data = self.decrypt(enc)
+        user = User.objects.get(email=data["email"])
+
+        self.send_verification_email(user)
+
+        return Response(
+            {"message": "Verification link sent successfully"},
+            status=status.HTTP_200_OK,
+        )
+
+
+class OAuthAPIView(GenericAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = OAuthSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        email = request.data.get("email")
+        data = {}
+        if not serializer.is_valid():
+            data["user_status"] = UserAuthStatus.message
+            data["message"] = "Invalid Data"
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            user = serializer.save()
+
+        if not UserDetails.objects.filter(user=user).exists():
+            data["user_status"] = UserAuthStatus.verified
+        else:
+            data["user_status"] = UserAuthStatus.completed
+
+        data["token"] = AuthToken.objects.create(user)[1]
+        data["user"] = UserSerializer(user).data
+
+        return Response(
+            data,
+            status=status.HTTP_200_OK,
         )

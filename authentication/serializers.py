@@ -1,3 +1,6 @@
+import random
+import string
+
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
@@ -9,7 +12,7 @@ from authentication.utils.authutil import AuthenticationUtil
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "email")
+        fields = ("email", "first_name", "last_name")
 
 
 # Register Serializer
@@ -29,5 +32,24 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
 
         AuthenticationUtil().send_verification_email(user)
+
+        return user
+
+
+class OAuthSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "email", "first_name", "last_name")
+
+    def create(self, validated_data):
+        letters = string.ascii_lowercase
+        password = "".join(random.choices(letters, k=8))
+        user = User.objects.create_user(
+            email=validated_data["email"],
+            password=password,
+            first_name=validated_data["first_name"],
+            last_name=validated_data["last_name"],
+            is_active=True,
+        )
 
         return user
