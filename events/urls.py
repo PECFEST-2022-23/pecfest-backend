@@ -6,4 +6,9 @@ from events.views import EventAPIView, EventRegistrationAPIView
 urlpatterns = [
     path("", EventAPIView.as_view(), name="get"),
     path("register/", EventRegistrationAPIView.as_view(), name="event_registration"),
+    path(
+        "<str:event_id>/register/",
+        EventRegistrationAPIView.as_view(),
+        name="event_registration",
+    ),
 ]

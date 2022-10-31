@@ -30,11 +30,10 @@ class EventRegistrationAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = TeamSerializer
 
-    def post(self, request, *args, **kwargs):
-        event_id = request.data.get("event_id")
+    def post(self, request, event_id, *args, **kwargs):
         user_id = request.user.id
-
-        serializer = self.get_serializer(data=request.data)
+        print(event_id)
+        serializer = self.get_serializer(data={"event_id": event_id})
         if serializer.is_valid():
             serializer.save()
         else:
