@@ -32,13 +32,20 @@ class EventRegistrationAPIView(GenericAPIView):
 
     def post(self, request, event_id, *args, **kwargs):
         user_id = request.user.id
-        print(event_id)
-        serializer = self.get_serializer(data={"event_id": event_id})
+        if "team_name" in request.data:
+            team_name = request.data["team_name"]
+        else:
+            team_name = None
+
+        serializer = self.get_serializer(
+            data={"event_id": event_id, "team_name": team_name}
+        )
         if serializer.is_valid():
             serializer.save()
         else:
-            data = {"message": serializer.errors}
-            return Response(data, status.HTTP_409_CONFLICT)
+            data = serializer.errors
+            return Response(data, status.HTTP_400_BAD_REQUEST)
 
-        data = {"message": event_id}
+        data = {"message": "Registered Successfully"}
+        data["id"] = serializer.data["id"]
         return Response(data, status.HTTP_201_CREATED)

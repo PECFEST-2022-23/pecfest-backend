@@ -1,5 +1,7 @@
+from urllib import request
+
 from rest_framework import serializers
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 
 from events.models import Event, Team
 
@@ -12,7 +14,8 @@ class EventSerializer(serializers.ModelSerializer):
 
 class TeamSerializer(serializers.Serializer):
     event_id = serializers.UUIDField(required=True)
-    team_name = serializers.CharField(required=False)
+    team_name = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    id = serializers.UUIDField(required=False)
 
     def create(self, validated_data):
         # save to DB
@@ -34,13 +37,33 @@ class TeamSerializer(serializers.Serializer):
             name=team_name, event=event, join_url="", is_registered=valid_team
         )
 
-    def validate_event_id(self, value):
-        # check if event exists
+    def validate(self, attrs):
+        # validate the data - event exists and team name is present if team event
+        event_id = attrs["event_id"]
+        if "team_name" in attrs:
+            team_name = attrs["team_name"]
+        else:
+            team_name = None
+
         try:
-            event = Event.objects.get(id=value)
+            event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
             event = None
 
         if event is None:
             raise NotFound("event not found")
-        return value
+
+        if event.type == "INDIVIDUAL":
+            if team_name is not None:
+                raise ValidationError(
+                    {"error": "team_name should be absent for individual events"}
+                )
+        else:
+            if team_name is None:
+                raise ValidationError(
+                    {"error": "team_name should be present for team events"}
+                )
+
+        if len(team_name.strip()) == 0:
+            raise ValidationError({"error": "team_name must not be blank"})
+        return attrs
