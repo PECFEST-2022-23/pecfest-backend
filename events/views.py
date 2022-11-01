@@ -22,6 +22,7 @@ class EventAPIView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         event_name = request.data.get("event")
-        obj = Event.objects.filter(name=event_name)
-        data = {"event": obj}
-        return Response(data, status=status.HTTP_200_OK)
+        event_object = Event.objects.filter(name=event_name)
+        return Response(
+            EventSerializer(event_object, many=True).data, status=status.HTTP_200_OK
+        )
