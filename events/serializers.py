@@ -3,7 +3,7 @@ from urllib import request
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound, ValidationError
 
-from events.models import Event, Team
+from events.models import Event, Team, TeamMembers
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -72,3 +72,27 @@ class TeamSerializer(serializers.Serializer):
         if team_name is not None and len(team_name.strip()) == 0:
             raise ValidationError({"error": "team_name must not be blank"})
         return attrs
+
+
+class TeamMembersSerializer(serializers.Serializer):
+    team_id = serializers.UUIDField(required=True)
+    user_id = serializers.UUIDField(required=True)
+    is_leader = serializers.BooleanField(required=False)
+
+    def create(self, validated_data):
+        # save to DB
+        team_id = validated_data["team_id"]
+        user_id = validated_data["user_id"]
+        team = Team.objects.get(id=team_id)
+        # user = User.objects.get(id = user_id)
+        user = None
+        user = self.context.get("user")
+        # if request and hasattr(request, "user"):
+        # user = request.user
+
+        if TeamMembers.objects.filter(team=team).exists():
+            is_leader = False
+        else:
+            is_leader = True
+
+        return TeamMembers.objects.create(team=team, user=user, is_leader=is_leader)

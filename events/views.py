@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from events.models import Event
-from events.serializers import EventSerializer, TeamSerializer
+from events.serializers import EventSerializer, TeamMembersSerializer, TeamSerializer
 
 
 class EventAPIView(GenericAPIView):
@@ -53,12 +53,25 @@ class EventRegistrationAPIView(GenericAPIView):
         return Response(data, status.HTTP_201_CREATED)
 
 
-class EventUnregisterAPIView(GenericAPIView):
+class MemberRegisterAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
-    serializer_class = TeamSerializer
+    serializer_class = TeamMembersSerializer
 
-    def post(self, request, event_id, *args, **kwargs):
+    def post(self, request, team_id, *args, **kwargs):
         user_id = request.user.id
+        serializer = self.get_serializer(
+            data={"team_id": team_id, "user_id": user_id},
+            context={"user": request.user},
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            data = serializer.errors
+            return Response(data, status.HTTP_400_BAD_REQUEST)
+
+        data = {"message": "Registered Successfully"}
+        return Response(data, status.HTTP_200_OK)
 
 
 # todo
