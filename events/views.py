@@ -73,7 +73,12 @@ class MemberRegisterAPIView(GenericAPIView):
         data = {"message": "Registered Successfully"}
         return Response(data, status.HTTP_200_OK)
 
+    # todo
+    # check if already registered - almost done - just need to change few lines in serializer
+    # create unregister api
+    def post(self, request, *args, **kwargs):
+        event_data = request.data.get("event")
 
-# todo
-# check if already registered - almost done - just need to change few lines in serializer
-# create unregister api
+        serializer = self.get_serializer(data=event_data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
