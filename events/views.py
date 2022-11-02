@@ -10,6 +10,7 @@ from events.serializers import EventSerializer
 class EventAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = EventSerializer
+    queryset = Event.objects.all()
 
     def get(self, request, *args, **kwargs):
         event_objs = Event.objects.all()
