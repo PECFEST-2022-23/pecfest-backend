@@ -40,6 +40,8 @@ class TeamSerializer(serializers.Serializer):
     def validate(self, attrs):
         # validate the data - event exists and team name is present if team event
         event_id = attrs["event_id"]
+        user = self.context.get("user")
+
         if "team_name" in attrs:
             team_name = attrs["team_name"]
         else:
@@ -53,6 +55,9 @@ class TeamSerializer(serializers.Serializer):
         if event is None:
             raise NotFound("event not found")
 
+        # print(user.id)
+        # print(event.teamsregistered.filter(user=1))
+
         if event.type == "INDIVIDUAL":
             if team_name is not None:
                 raise ValidationError(
@@ -64,6 +69,6 @@ class TeamSerializer(serializers.Serializer):
                     {"error": "team_name should be present for team events"}
                 )
 
-        if len(team_name.strip()) == 0:
+        if team_name is not None and len(team_name.strip()) == 0:
             raise ValidationError({"error": "team_name must not be blank"})
         return attrs
