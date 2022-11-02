@@ -3,7 +3,7 @@ import uuid
 from authentication.models import User
 from django.db import models
 
-from events.constants import ClubTypes, EventTypes
+from events.constants import ClubTypes, EventSubTypes, EventTypes
 
 
 class Club(models.Model):
@@ -25,7 +25,12 @@ class Event(models.Model):
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name="events")
     max_team_size = models.IntegerField(default=1)
     min_team_size = models.IntegerField(default=1)
-    image_url = models.URLField()
+    image_url = models.ImageField()
+    subtype = models.CharField(
+        max_length=15, choices=EventSubTypes, default=EventSubTypes.dance
+    )
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
 
 
 class Team(models.Model):

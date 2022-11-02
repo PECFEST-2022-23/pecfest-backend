@@ -9,3 +9,7 @@ class EventTypes(DjangoChoices):
 class ClubTypes(DjangoChoices):
     cultural = ChoiceItem(value="CULTURAL", label=("cultural club"))
     technical = ChoiceItem(value="TECHNICAL", label=("technical club"))
+
+
+class EventSubTypes(DjangoChoices):
+    dance = ChoiceItem(value="DANCE", label=("dance event"))
