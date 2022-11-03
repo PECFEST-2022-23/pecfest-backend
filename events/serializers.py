@@ -1,5 +1,3 @@
-from urllib import request
-
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound, ValidationError
 
@@ -18,34 +16,32 @@ class TeamSerializer(serializers.Serializer):
     id = serializers.UUIDField(required=False)
 
     def create(self, validated_data):
-        # save to DB
+        user = self.context.get("user")
         event_id = validated_data["event_id"]
-        if "team_name" in validated_data:
-            team_name = validated_data["team_name"]
-        else:
-            team_name = ""
+        team_name = validated_data["team_name"]
 
         event = Event.objects.get(id=event_id)
 
+        valid_team = False
         if event.min_team_size == 1:
             valid_team = True
 
         if team_name is None:
             team_name = ""
 
-        return Team.objects.create(
-            name=team_name, event=event, join_url="", is_registered=valid_team
+        team_obj = Team.objects.create(
+            name=team_name, event=event, is_registered=valid_team
         )
+
+        TeamMembers.objects.create(team=team_obj, user=user, is_leader=True)
+
+        return team_obj
 
     def validate(self, attrs):
         # validate the data - event exists and team name is present if team event
-        event_id = attrs["event_id"]
-        user = self.context.get("user")
+        event_id = attrs.get("event_id")
 
-        if "team_name" in attrs:
-            team_name = attrs["team_name"]
-        else:
-            team_name = None
+        team_name = attrs.get("name")
 
         try:
             event = Event.objects.get(id=event_id)
@@ -54,9 +50,6 @@ class TeamSerializer(serializers.Serializer):
 
         if event is None:
             raise NotFound("event not found")
-
-        # print(user.id)
-        # print(event.teamsregistered.filter(user=1))
 
         if event.type == "INDIVIDUAL":
             if team_name is not None:
@@ -80,19 +73,9 @@ class TeamMembersSerializer(serializers.Serializer):
     is_leader = serializers.BooleanField(required=False)
 
     def create(self, validated_data):
-        # save to DB
         team_id = validated_data["team_id"]
         user_id = validated_data["user_id"]
-        team = Team.objects.get(id=team_id)
-        # user = User.objects.get(id = user_id)
-        user = None
-        user = self.context.get("user")
-        # if request and hasattr(request, "user"):
-        # user = request.user
 
-        if TeamMembers.objects.filter(team=team).exists():
-            is_leader = False
-        else:
-            is_leader = True
-
-        return TeamMembers.objects.create(team=team, user=user, is_leader=is_leader)
+        return TeamMembers.objects.create(
+            team_id=team_id, user_id=user_id, is_leader=False
+        )

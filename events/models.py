@@ -40,7 +40,6 @@ class Team(models.Model):
         Event, on_delete=models.CASCADE, related_name="teamsregistered"
     )
     is_registered = models.BooleanField(default=False)
-    join_url = models.URLField()
 
 
 class TeamMembers(models.Model):

@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from events.models import Event
@@ -17,36 +17,19 @@ class EventAPIView(GenericAPIView):
         serializer = self.get_serializer(event_objs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # def post(self, request, *args, **kwargs):
-    #     event_data = request.data.get("event")
 
-    #     serializer = self.get_serializer(data=event_data)
-    #     serializer.is_valid(raise_exception=True)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class EventRegistrationAPIView(GenericAPIView):
-
-    permission_classes = (AllowAny,)
+class TeamRegistrationAPIView(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = TeamSerializer
 
     def post(self, request, event_id, *args, **kwargs):
-        user_id = request.user.id
-        user_id = "a9f1e6e2-ab39-491a-b578-315c5c3c4715"  # to be deleted
-        if "team_name" in request.data:
-            team_name = request.data["team_name"]
-        else:
-            team_name = None
+        team_name = request.data.get("team_name")
 
         serializer = self.get_serializer(
             data={"event_id": event_id, "team_name": team_name},
             context={"user": request.user},
         )
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            data = serializer.errors
-            return Response(data, status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
 
         data = {"message": "Registered Successfully"}
         data["id"] = serializer.data["id"]
@@ -54,31 +37,14 @@ class EventRegistrationAPIView(GenericAPIView):
 
 
 class MemberRegisterAPIView(GenericAPIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = TeamMembersSerializer
 
     def post(self, request, team_id, *args, **kwargs):
         user_id = request.user.id
-        serializer = self.get_serializer(
-            data={"team_id": team_id, "user_id": user_id},
-            context={"user": request.user},
-        )
+        serializer = self.get_serializer(data={"team_id": team_id, "user_id": user_id})
 
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            data = serializer.errors
-            return Response(data, status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
 
         data = {"message": "Registered Successfully"}
         return Response(data, status.HTTP_200_OK)
-
-    # todo
-    # check if already registered - almost done - just need to change few lines in serializer
-    # create unregister api
-    def post(self, request, *args, **kwargs):
-        event_data = request.data.get("event")
-
-        serializer = self.get_serializer(data=event_data)
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
