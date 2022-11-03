@@ -59,5 +59,5 @@ class AuthenticationUtil:
     def send_verification_email(self, user):
         if settings.DEVELOPMENT_MODE == "DEV":
             return
-        t = threading.Thread(target=self.send_verification_email_thread, args=(user))
+        t = threading.Thread(target=self.send_verification_email_thread, args=(user,))
         t.start()
