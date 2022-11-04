@@ -13,9 +13,26 @@ class EventAPIView(GenericAPIView):
     queryset = Event.objects.all()
 
     def get(self, request, *args, **kwargs):
-        event_objs = Event.objects.all()
-        serializer = self.get_serializer(event_objs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        event_id = kwargs.get("event_id")
+        if event_id:
+            try:
+                event_obj = Event.objects.filter(id=event_id).first()
+            except Exception:
+                return Response(
+                    {"message": "Invalid event id"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if event_obj:
+                serializer = self.get_serializer(event_obj)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    {"message": "Invalid event id"}, status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            event_objs = Event.objects.all()
+            serializer = self.get_serializer(event_objs, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TeamRegistrationAPIView(GenericAPIView):

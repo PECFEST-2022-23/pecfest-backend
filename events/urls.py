@@ -1,17 +1,17 @@
 from django.urls import path
-from knox import views as knox_views
 
 from events.views import EventAPIView, MemberRegisterAPIView, TeamRegistrationAPIView
 
 urlpatterns = [
     path("", EventAPIView.as_view(), name="get"),
+    path("<str:event_id>/", EventAPIView.as_view(), name="get_id"),
     path(
-        "<str:event_id>/register/",
+        "register/<str:event_id>/",
         TeamRegistrationAPIView.as_view(),
         name="team_registration",
     ),
     path(
-        "<str:team_id>/register/",
+        "add/<str:team_id>/",
         MemberRegisterAPIView.as_view(),
         name="member_registration",
     ),
