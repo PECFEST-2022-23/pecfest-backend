@@ -1,7 +1,7 @@
 import random
 import string
 
-from django.contrib.auth import authenticate
+from django.core.validators import EmailValidator
 from rest_framework import serializers
 
 from authentication.models import User
@@ -40,6 +40,13 @@ class OAuthSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "email", "first_name", "last_name")
+        extra_kwargs = {
+            "email": {
+                "validators": [
+                    EmailValidator,
+                ]
+            },
+        }
 
     def create(self, validated_data):
         letters = string.ascii_lowercase
