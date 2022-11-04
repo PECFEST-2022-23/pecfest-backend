@@ -13,9 +13,15 @@ class EventAPIView(GenericAPIView):
     queryset = Event.objects.all()
 
     def get(self, request, *args, **kwargs):
-        event_objs = Event.objects.all()
-        serializer = self.get_serializer(event_objs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            event_id = request.GET["id"]
+            event_objs = Event.objects.filter(id=event_id)
+            serializer = self.get_serializer(event_objs, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            event_objs = Event.objects.all()
+            serializer = self.get_serializer(event_objs, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TeamRegistrationAPIView(GenericAPIView):
