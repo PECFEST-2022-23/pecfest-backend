@@ -68,16 +68,6 @@ class EventAPIView(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         club_id = request.user.club_id
-        try:
-            event_objs = Event.objects.filter(club_id=club_id)
-        except Exception:
-            return Response(
-                {"message": "Invalid club id"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        if event_objs:
-            serializer = EventSerializer(event_objs, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {"message": "Invalid club id"}, status=status.HTTP_400_BAD_REQUEST
-            )
+        event_objs = Event.objects.filter(club_id=club_id)
+        serializer = EventSerializer(event_objs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
