@@ -1,5 +1,5 @@
 from django.urls import path
-from clubadmin.views import EventAPIView
+from clubadmin.views import EventAPIView, ParticipantsAPIView
 urlpatterns = [
     path(
         "event/",
@@ -10,5 +10,10 @@ urlpatterns = [
         "event/<str:event_id>",
         EventAPIView.as_view(),
         name = "edit_event"
+    ),
+    path(
+        "event/<str:event_id>/participants",
+        ParticipantsAPIView.as_view(),
+        name = "event participants"
     )
 ]
