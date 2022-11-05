@@ -1,14 +1,12 @@
 from functools import partial
-
-from events.models import Event
-from events.serializers import EventSerializer
-from rest_framework import status
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
+from rest_framework import status
+from events.serializers import EventSerializer
+from events.models import Event
 
 # Create your views here.
-
 
 class EventAPIView(GenericAPIView):
     permission_classes = (IsAdminUser,)
@@ -67,25 +65,14 @@ class EventAPIView(GenericAPIView):
         return Response(response_data, status.HTTP_200_OK)
 
     def get(self, request, *args, **kwargs):
-<<<<<<< HEAD
-        club_id = kwargs.get("club_id")
-        try:
-            event_objs = Event.objects.filter(club_id=club_id)
-        except Exception:
-            return Response(
-                {"message": "Invalid club id"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        if event_objs:
-            serializer = EventSerializer(event_objs, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {"message": "Invalid club id"}, status=status.HTTP_400_BAD_REQUEST
-            )
+        club_id = request.user.club_id
+        event_objs = Event.objects.filter(club_id=club_id)
+        serializer = EventSerializer(event_objs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ParticipantsAPIView(GenericAPIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAdminUser,)
     serializer_class = EventSerializer
     queryset = Event.objects.all()
 
@@ -108,8 +95,7 @@ class ParticipantsAPIView(GenericAPIView):
             
 
     def get(self, request, event_id, *args, **kwargs):
-        
-        club = "b509e6a7-42f8-4626-8e67-fa6aa5e023ba" # need to get from user_id which is club admin id
+        club = request.user.club.id 
         try:
             event = self.get_queryset().get(id = event_id)
         except:
@@ -120,7 +106,6 @@ class ParticipantsAPIView(GenericAPIView):
         
         if event.type == "INDIVIDUAL":
             teams = list(event.teamsregistered.all())
-            response_data = []
             for t in teams:
                 participants = self.get_participants_json_from_team(t)
                 response_data.append(participants)
@@ -141,9 +126,3 @@ class ParticipantsAPIView(GenericAPIView):
 
     
         
-=======
-        club_id = request.user.club_id
-        event_objs = Event.objects.filter(club_id=club_id)
-        serializer = EventSerializer(event_objs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
->>>>>>> main
