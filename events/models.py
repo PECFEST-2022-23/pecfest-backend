@@ -3,13 +3,14 @@ import uuid
 from authentication.models import User
 from django.db import models
 
-from events.constants import ClubTypes, CategorySubTypes, EventTypes, CategoryTypes
+from events.constants import CategorySubTypes, CategoryTypes, ClubTypes, EventTypes
 
 
 class Club(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=15, choices=ClubTypes)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="club")
 
 
 class Event(models.Model):
