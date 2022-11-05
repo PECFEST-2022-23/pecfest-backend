@@ -22,8 +22,8 @@ class Event(models.Model):
         max_length=15, choices=CategoryTypes, default=CategoryTypes.technical
     )
     description = models.TextField()
-    datetime = models.DateTimeField()
-    duration = models.TimeField()
+    startdatetime = models.DateTimeField()
+    enddatetime = models.DateTimeField()
     venue = models.CharField(max_length=100)
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name="events")
     max_team_size = models.IntegerField(default=1)
