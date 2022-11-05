@@ -118,8 +118,10 @@ class ParticipantsAPIView(GenericAPIView):
         
         if event.type == "INDIVIDUAL":
             teams = list(event.teamsregistered.all())
-            participants = self.get_participants_json_from_team(teams)
-            response_data = participants
+            response_data = []
+            for t in teams:
+                participants = self.get_participants_json_from_team(t)
+                response_data.append(participants)
         
         else:
             teams = list(event.teamsregistered.all())
