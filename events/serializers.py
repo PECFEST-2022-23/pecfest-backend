@@ -7,8 +7,7 @@ from events.models import Event, Team, TeamMembers
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        #fields = "__all__"
-        exclude = ('image_url',)
+        fields = "__all__"
 
 
 class TeamSerializer(serializers.Serializer):
