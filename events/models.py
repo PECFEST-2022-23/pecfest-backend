@@ -12,6 +12,9 @@ class Club(models.Model):
     type = models.CharField(max_length=15, choices=ClubTypes)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="club")
 
+    def __str__(self):
+        return self.name
+
 
 class Event(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -37,6 +40,9 @@ class Event(models.Model):
     longitude = models.FloatField(null=True, blank=True)
     rulebook_url = models.URLField(null=True, blank=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Team(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -45,6 +51,9 @@ class Team(models.Model):
         Event, on_delete=models.CASCADE, related_name="teamsregistered"
     )
     is_registered = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
 
 
 class TeamMembers(models.Model):
