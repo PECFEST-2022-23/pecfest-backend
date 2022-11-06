@@ -83,10 +83,9 @@ class TeamDetailsAPIView(GenericAPIView):
                 "last_name":u.user.last_name,
                 "email":u.user.email,
             }
-            for d in list(u.user.details.all()):
-                participant['college'] = d.college
-                participant['mobile'] = d.mobile
-                break
+            d = u.user.details
+            participant['college'] = d.college
+            participant['mobile'] = d.mobile
 
             participants.append(participant)
 

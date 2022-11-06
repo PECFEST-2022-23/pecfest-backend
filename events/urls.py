@@ -1,6 +1,11 @@
 from django.urls import path
 
-from events.views import EventAPIView, MemberRegisterAPIView, TeamRegistrationAPIView, TeamDetailsAPIView
+from events.views import (
+    EventAPIView,
+    MemberRegisterAPIView,
+    TeamDetailsAPIView,
+    TeamRegistrationAPIView,
+)
 
 urlpatterns = [
     path("", EventAPIView.as_view(), name="get"),
@@ -16,8 +21,8 @@ urlpatterns = [
         name="member_registration",
     ),
     path(
-        "<str:event_id>/team",
+        "<str:event_id>/team/",
         TeamDetailsAPIView.as_view(),
-        name = "team_details_from_event_id"
+        name="team_details_from_event_id",
     ),
 ]

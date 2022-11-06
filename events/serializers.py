@@ -81,9 +81,20 @@ class TeamMembersSerializer(serializers.Serializer):
         team_id = validated_data["team_id"]
         user_id = validated_data["user_id"]
 
-        return TeamMembers.objects.create(
+        t = TeamMembers.objects.create(
             team_id=team_id, user_id=user_id, is_leader=False
         )
+
+        team = t.team
+
+        if (
+            TeamMembers.objects.filter(team_id=team_id).count()
+            == team.event.min_team_size
+        ):
+            team.is_registered = True
+            team.save()
+
+        return t
 
     def validate(self, attrs):
         team_id = attrs.get("team_id")
