@@ -50,7 +50,6 @@ class User(AbstractUser):
 
 
 class UserDetails(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="details")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="details")
     mobile = models.CharField(max_length=10)
-    name = models.CharField(max_length=25)
     college = models.CharField(max_length=50, null=True, blank=True)

@@ -2,6 +2,7 @@ from django.urls import path
 from knox import views as knox_views
 
 from authentication.views import (
+    AdditionalDetailsAPIView,
     LoginAPIView,
     OAuthAPIView,
     RegisterAPIView,
@@ -14,4 +15,5 @@ urlpatterns = [
     path("logout/", knox_views.LogoutView.as_view(), name="logout"),
     path("verify/", VerificationAPIView.as_view(), name="verify"),
     path("oauth/", OAuthAPIView.as_view(), name="oauth"),
+    path("profile/", AdditionalDetailsAPIView.as_view(), name="profile"),
 ]

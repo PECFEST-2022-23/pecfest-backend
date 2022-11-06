@@ -4,7 +4,7 @@ import string
 from django.core.validators import EmailValidator
 from rest_framework import serializers
 
-from authentication.models import User
+from authentication.models import User, UserDetails
 from authentication.utils.authutil import AuthenticationUtil
 
 
@@ -13,6 +13,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("email", "first_name", "last_name")
+
+
+class UserDetailsSerializer(serializers.ModelSerializer):
+    mobile = serializers.CharField(required=True)
+
+    class Meta:
+        model = UserDetails
+        fields = "__all__"
 
 
 # Register Serializer

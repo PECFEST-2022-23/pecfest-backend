@@ -10,6 +10,7 @@ from authentication.models import User, UserDetails
 from authentication.serializers import (
     OAuthSerializer,
     RegisterSerializer,
+    UserDetailsSerializer,
     UserSerializer,
 )
 from authentication.utils.authutil import AuthenticationUtil
@@ -156,4 +157,50 @@ class OAuthAPIView(GenericAPIView):
         return Response(
             data,
             status=status.HTTP_200_OK,
+        )
+
+
+class AdditionalDetailsAPIView(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserDetailsSerializer
+    queryset = UserDetails.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        try:
+            obj = UserDetails.objects.get(user=request.user)
+        except UserDetails.DoesNotExist:
+            return Response(
+                {"message": "Additional Details doesn't exist"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        data["user"] = str(request.user.id)
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"message": "Additional Details added"}, status=status.HTTP_201_CREATED
+        )
+
+    def patch(self, request, *args, **kwargs):
+        data = request.data
+        try:
+            obj = UserDetails.objects.get(user=request.user)
+        except UserDetails.DoesNotExist:
+            return Response(
+                {"message": "Additional Details doesn't exist"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        serializer = self.get_serializer(obj, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"message": "Additional Details updated"}, status=status.HTTP_201_CREATED
         )
