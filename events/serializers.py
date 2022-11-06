@@ -84,3 +84,14 @@ class TeamMembersSerializer(serializers.Serializer):
         return TeamMembers.objects.create(
             team_id=team_id, user_id=user_id, is_leader=False
         )
+
+    def validate(self, attrs):
+        team_id = attrs.get("team_id")
+        try:
+            team = Team.objects.get(id=team_id)
+        except Exception:
+            raise NotFound("Team ID Invalid")
+
+        if team.event.max_team_size == team.user.all().count():
+            raise ValidationError({"error": "Team reached it's max size"})
+        return super().validate(attrs)
