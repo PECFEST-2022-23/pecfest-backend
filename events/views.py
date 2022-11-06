@@ -65,3 +65,45 @@ class MemberRegisterAPIView(GenericAPIView):
 
         data = {"message": "Registered Successfully"}
         return Response(data, status.HTTP_200_OK)
+
+
+class TeamDetailsAPIView(GenericAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = EventSerializer
+
+    # utility function to return list of users in a team -> works for both team and individual event
+    def get_participants_json_from_team(self, t):
+        participants = []
+        for u in list(t.user.all()):
+            participant = {
+                "user_id":u.user.id,
+                "first_name":u.user.first_name,
+                "last_name":u.user.last_name,
+                "email":u.user.email,
+            }
+            for d in list(u.user.details.all()):
+                participant['college'] = d.college
+                participant['mobile'] = d.mobile
+                break
+
+            participants.append(participant)
+
+        return participants
+
+    def get(self, request, event_id, *args, **kwargs):
+        user = request.user
+        user_teams = list(user.teams.all())
+        for t in user_teams:
+            if str(t.team.event.id) == event_id:
+                if t.team.event.type == "TEAM":
+                    response = {"team_name":t.team.name}
+                    response['is_registered'] = t.team.is_registered
+                    response['members'] = self.get_participants_json_from_team(t.team)
+                    return Response(response, status.HTTP_200_OK)
+                else:
+                    response = {"error":"not a team event"}
+                    return Response(response, status.HTTP_400_BAD_REQUEST)
+        
+        return Response({"error":"not registered for this event"}, status.HTTP_400_BAD_REQUEST)
+
+    
