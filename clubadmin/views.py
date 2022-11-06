@@ -88,6 +88,8 @@ class ParticipantsAPIView(GenericAPIView):
             }
             for d in list(u.user.details.all()):
                 participant['college'] = d.college
+                participant['mobile'] = d.mobile
+                break
 
             participants.append(participant)
 
@@ -124,5 +126,4 @@ class ParticipantsAPIView(GenericAPIView):
         
         return Response(res, status.HTTP_200_OK)
 
-    
         
