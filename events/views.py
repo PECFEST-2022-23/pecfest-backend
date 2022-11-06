@@ -91,9 +91,7 @@ class TeamDetailsAPIView(GenericAPIView):
         return participants
 
     def get(self, request, event_id, *args, **kwargs):
-        #user = request.user
-        from events.models import User
-        user = list(User.objects.filter(email = 'utkarshgoel.bt19cse@pec.edu.in'))[0]
+        user = request.user
         user_teams = list(user.teams.all())
         for t in user_teams:
             if str(t.team.event.id) == event_id:
