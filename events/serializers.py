@@ -5,9 +5,14 @@ from events.models import Event, Team, TeamMembers
 
 
 class EventSerializer(serializers.ModelSerializer):
+    club_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
         fields = "__all__"
+
+    def get_club_name(self, obj):
+        return obj.club.name
 
 
 class TeamSerializer(serializers.Serializer):
