@@ -46,7 +46,7 @@ class TeamSerializer(serializers.Serializer):
         # validate the data - event exists and team name is present if team event
         event_id = attrs.get("event_id")
 
-        team_name = attrs.get("name")
+        team_name = attrs.get("team_name")
 
         try:
             event = Event.objects.get(id=event_id)

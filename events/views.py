@@ -4,7 +4,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from events.models import Event
-from events.serializers import EventSerializer, TeamMembersSerializer, TeamSerializer
+from events.serializers import (EventSerializer, TeamMembersSerializer,
+                                TeamSerializer)
 
 
 class EventAPIView(GenericAPIView):
@@ -47,6 +48,7 @@ class TeamRegistrationAPIView(GenericAPIView):
             context={"user": request.user},
         )
         serializer.is_valid(raise_exception=True)
+        team_obj = serializer.save()
 
         data = {"message": "Registered Successfully"}
         data["id"] = serializer.data["id"]
@@ -105,5 +107,3 @@ class TeamDetailsAPIView(GenericAPIView):
                     return Response(response, status.HTTP_400_BAD_REQUEST)
         
         return Response({"error":"not registered for this event"}, status.HTTP_400_BAD_REQUEST)
-
-    
