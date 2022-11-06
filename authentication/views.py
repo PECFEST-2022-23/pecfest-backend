@@ -42,6 +42,31 @@ class RegisterAPIView(GenericAPIView):
         data["message"] = "Please Verify the link sent on your email"
         return Response(data, status=status.HTTP_200_OK)
 
+    def patch(self, request, *args, **kwargs):
+        data = request.data
+        email = data.get("email")
+        new_pass = data.get("password")
+        res = {"user_status": UserAuthStatus.message}
+        if not email and not new_pass:
+            res["message"] = "Invalid Data"
+            return Response(
+                res,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            res["message"] = "Email Id doesn't exist"
+            return Response(
+                res,
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        AuthenticationUtil().send_verification_email(user, {"new_password": new_pass})
+        res["message"] = "Please Verify the link sent on your email"
+        return Response(res, status=status.HTTP_200_OK)
+
 
 class LoginAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
@@ -98,11 +123,6 @@ class VerificationAPIView(GenericAPIView, AuthenticationUtil):
     # to verify email
     def post(self, request, *args, **kwargs):
         enc = request.data.get("token")
-        if not enc and self.is_enc_expired(enc):
-            return Response(
-                {"message": "Verification Link Expired"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
         data = self.decrypt(enc)
         user = User.objects.get(email=data["email"])
@@ -124,6 +144,24 @@ class VerificationAPIView(GenericAPIView, AuthenticationUtil):
 
         return Response(
             {"message": "Verification link sent successfully"},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ResetPasswordVerificationAPIView(GenericAPIView, AuthenticationUtil):
+    permission_classes = (AllowAny,)
+
+    # to update password email
+    def post(self, request, *args, **kwargs):
+        enc = request.data.get("token")
+
+        data = self.decrypt(enc)
+        user = User.objects.get(email=data["email"])
+        user.set_password(data["new_password"])
+        user.save()
+
+        return Response(
+            {"message": "Password Verified Successfully"},
             status=status.HTTP_200_OK,
         )
 

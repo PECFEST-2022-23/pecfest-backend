@@ -14,7 +14,7 @@ class AuthenticationUtil:
         """Returns signed email using Django Secret Key."""
 
         signer = signing.Signer(salt=settings.SECRET_KEY)
-        data["timestamp"] = int(datetime.now().timestamp())
+        # data["timestamp"] = int(datetime.now().timestamp())
         enc = signer.sign_object(data)  # also supports other types
         return enc
 
@@ -29,21 +29,23 @@ class AuthenticationUtil:
             print(e)
             return None
 
-    def is_enc_expired(self, enc):
-        """Returns boolean value if the enc expired or not"""
+    # def is_enc_expired(self, enc):
+    #     """Returns boolean value if the enc expired or not"""
 
-        data = self.decrypt(enc)
-        enc_datetime = datetime.fromtimestamp(data["timestamp"])
+    #     data = self.decrypt(enc)
+    #     enc_datetime = datetime.fromtimestamp(data["timestamp"])
 
-        if datetime.now() - enc_datetime > timedelta(hours=2):
-            return True
+    #     if datetime.now() - enc_datetime > timedelta(hours=2):
+    #         return True
 
-        return False
+    #     return False
 
-    def send_verification_email_thread(self, user):
-        data = {"email": user.email}
+    def send_verification_email_thread(self, user, new_data):
+        data = {"email": user.email, **new_data}
         enc = self.encrypt(data)
         url = os.getenv("FRONTEND_URL") + "api/auth/verify/" + enc
+        if new_data:
+            url = os.getenv("FRONTEND_URL") + "api/auth/reset-pass/" + enc
         context = {"link": url, "first_name": "Aman"}
         html_message = render_to_string("emailverify.html", context=context)
         plain_message = strip_tags(html_message)
@@ -56,8 +58,10 @@ class AuthenticationUtil:
             html_message=html_message,
         )
 
-    def send_verification_email(self, user):
+    def send_verification_email(self, user, new_data=None):
         if settings.DEVELOPMENT_MODE == "DEV":
             return
-        t = threading.Thread(target=self.send_verification_email_thread, args=(user,))
+        t = threading.Thread(
+            target=self.send_verification_email_thread, args=(user, new_data)
+        )
         t.start()
