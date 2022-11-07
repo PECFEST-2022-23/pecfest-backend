@@ -46,7 +46,7 @@ class AuthenticationUtil:
         url = os.getenv("FRONTEND_URL") + "api/auth/verify/" + enc
         if new_data:
             url = os.getenv("FRONTEND_URL") + "api/auth/reset-pass/" + enc
-        context = {"link": url, "first_name": "Aman"}
+        context = {"link": url, "first_name": user.first_name}
         html_message = render_to_string("emailverify.html", context=context)
         plain_message = strip_tags(html_message)
 
