@@ -104,7 +104,7 @@ class ParticipantsAPIView(GenericAPIView):
         except:
             return Response({"error": "event does not exist"})
 
-        if str(event.club.id) != club:
+        if str(event.club.id) != str(club):
             return Response({"error": "access denied"}, status.HTTP_401_UNAUTHORIZED)
 
         if event.type == "INDIVIDUAL":
