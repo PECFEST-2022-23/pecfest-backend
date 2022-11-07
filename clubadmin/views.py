@@ -107,6 +107,7 @@ class ParticipantsAPIView(GenericAPIView):
         if str(event.club.id) != str(club):
             return Response({"error": "access denied"}, status.HTTP_401_UNAUTHORIZED)
 
+        response_data = []
         if event.type == "INDIVIDUAL":
             teams = list(event.teamsregistered.all())
             for t in teams:
@@ -115,7 +116,6 @@ class ParticipantsAPIView(GenericAPIView):
 
         else:
             teams = list(event.teamsregistered.all())
-            response_data = []
             for t in teams:
                 if t.is_registered:
                     team = {"team_name": t.name}
