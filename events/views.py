@@ -104,6 +104,7 @@ class TeamDetailsAPIView(GenericAPIView):
                     response['event_type'] = t.team.event.type
                     return Response(response, status.HTTP_200_OK)
                 else:
+                    response = {}
                     response['is_registered'] = True
                     response['members'] = self.get_participants_json_from_team(t.team)
                     response['event_type'] = t.team.event.type
