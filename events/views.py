@@ -102,7 +102,7 @@ class TeamDetailsAPIView(GenericAPIView):
                     response['members'] = self.get_participants_json_from_team(t.team)
                     return Response(response, status.HTTP_200_OK)
                 else:
-                    response = {"error":"not a team event"}
-                    return Response(response, status.HTTP_400_BAD_REQUEST)
+                    response['is_registered'] = t.team.is_registered
+                    return Response(response, status.HTTP_200_OK)
         
         return Response({"error":"not registered for this event"}, status.HTTP_400_BAD_REQUEST)
