@@ -70,7 +70,7 @@ class MemberRegisterAPIView(GenericAPIView):
 
 
 class TeamDetailsAPIView(GenericAPIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = EventSerializer
 
     # utility function to return list of users in a team -> works for both team and individual event
