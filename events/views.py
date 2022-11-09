@@ -83,9 +83,13 @@ class TeamDetailsAPIView(GenericAPIView):
                 "last_name":u.user.last_name,
                 "email":u.user.email,
             }
-            d = u.user.details
-            participant['college'] = d.college
-            participant['mobile'] = d.mobile
+            try:
+                for d in list(u.user.details.all()):
+                    participant["college"] = d.college
+                    participant["mobile"] = d.mobile
+                    break
+            except:
+                pass
 
             participants.append(participant)
 
@@ -98,6 +102,7 @@ class TeamDetailsAPIView(GenericAPIView):
             if str(t.team.event.id) == event_id:
                 if t.team.event.type == "TEAM":
                     response = {"team_name":t.team.name}
+                    response['id'] = t.team.id
                     response['is_registered'] = True
                     response['team_valid'] = t.team.is_registered # if min and max size are fulfilled
                     response['members'] = self.get_participants_json_from_team(t.team)
@@ -106,6 +111,7 @@ class TeamDetailsAPIView(GenericAPIView):
                 else:
                     response = {}
                     response['is_registered'] = True
+                    response['id'] = t.team.id
                     response['members'] = self.get_participants_json_from_team(t.team)
                     response['event_type'] = t.team.event.type
                     return Response(response, status.HTTP_200_OK)

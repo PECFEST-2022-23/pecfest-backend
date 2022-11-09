@@ -27,7 +27,10 @@ class EventAPIView(GenericAPIView):
         response_data["event_id"] = serializer.data["id"]
         return Response(response_data, status.HTTP_201_CREATED)
 
-    def delete(self, request, event_id, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
+        event_id = kwargs.get('event_id')
+        if not event_id:
+            return Response({"error": "event id is required"}, status.HTTP_400_BAD_REQUEST)
         try:
             event = self.get_queryset().get(id=event_id)
         except:
@@ -39,7 +42,10 @@ class EventAPIView(GenericAPIView):
         response_data = {"message": "event deleted"}
         return Response(response_data, status.HTTP_200_OK)
 
-    def patch(self, request, event_id, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
+        event_id = kwargs.get('event_id')
+        if not event_id:
+            return Response({"error": "event id is required"}, status.HTTP_400_BAD_REQUEST)
         data = request.data
         club = request.user.club
         data["club"] = club.id  # add club id to the data
@@ -88,10 +94,13 @@ class ParticipantsAPIView(GenericAPIView):
                 "last_name": u.user.last_name,
                 "email": u.user.email,
             }
-            for d in list(u.user.details.all()):
-                participant["college"] = d.college
-                participant["mobile"] = d.mobile
-                break
+            try:
+                for d in list(u.user.details.all()):
+                    participant["college"] = d.college
+                    participant["mobile"] = d.mobile
+                    break
+            except:
+                pass
 
             participants.append(participant)
 
