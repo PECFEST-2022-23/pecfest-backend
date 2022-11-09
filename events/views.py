@@ -3,7 +3,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from events.models import Event
+from events.models import Event, Team, TeamMembers
 from events.serializers import (EventSerializer, TeamMembersSerializer,
                                 TeamSerializer)
 
@@ -117,3 +117,42 @@ class TeamDetailsAPIView(GenericAPIView):
                     return Response(response, status.HTTP_200_OK)
         
         return Response({"is_registered":False}, status.HTTP_200_OK)
+
+class TeamFromIdAPIView(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = TeamSerializer
+
+    def get(self, request, *args, **kwargs):
+        team_id = kwargs.get('team_id', None)
+        if team_id is None:
+            return Response({"error":"team_id is required"}, status.HTTP_400_BAD_REQUEST)
+        
+        team = Team.objects.get(id = team_id)
+        if team is None:
+            return Response({"error":"team not found"}, status.HTTP_404_NOT_FOUND)
+        
+        response = {}
+        response['team_name'] = team.name
+        response['event_id'] = team.event.id
+        members = []
+        try:
+            for u in list(team.user.all()):
+                member = {}
+                member['first_name'] = u.user.first_name
+                member['last_name'] = u.user.last_name
+                member['user_id'] = u.user.id
+                member['email'] = u.user.email
+                try:
+                    for d in list(u.user.details.all()):
+                        member["college"] = d.college
+                        member["mobile"] = d.mobile
+                        break
+                except:
+                    pass
+
+                members.append(member)
+        except:
+            pass
+
+        response['members'] = members
+        return Response(response, status.HTTP_200_OK)

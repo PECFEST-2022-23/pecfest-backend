@@ -5,6 +5,7 @@ from events.views import (
     MemberRegisterAPIView,
     TeamDetailsAPIView,
     TeamRegistrationAPIView,
+    TeamFromIdAPIView
 )
 
 urlpatterns = [
@@ -25,4 +26,9 @@ urlpatterns = [
         TeamDetailsAPIView.as_view(),
         name="team_details_from_event_id",
     ),
+    path(
+        "team/<team_id>/",
+        TeamFromIdAPIView.as_view(),
+        name="team_details_from_id"
+    )
 ]
