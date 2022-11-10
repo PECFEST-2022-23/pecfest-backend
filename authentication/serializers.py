@@ -12,7 +12,7 @@ from authentication.utils.authutil import AuthenticationUtil
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("email", "first_name", "last_name")
+        fields = ("email", "first_name", "last_name", "is_staff")
 
 
 class UserDetailsSerializer(serializers.ModelSerializer):
