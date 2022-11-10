@@ -60,3 +60,9 @@ class TeamMembers(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="user")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="teams")
     is_leader = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (
+            "team",
+            "user",
+        )
