@@ -3,6 +3,7 @@ from django.urls import path
 from events.views import (
     EventAPIView,
     MemberRegisterAPIView,
+    TeamAPIView,
     TeamDetailsAPIView,
     TeamRegistrationAPIView,
 )
@@ -24,5 +25,10 @@ urlpatterns = [
         "<str:event_id>/team/",
         TeamDetailsAPIView.as_view(),
         name="team_details_from_event_id",
+    ),
+    path(
+        "team/<str:team_id>/",
+        TeamAPIView.as_view(),
+        name="team_details_from_team_id",
     ),
 ]

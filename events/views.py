@@ -3,9 +3,9 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from events.models import Event
-from events.serializers import (EventSerializer, TeamMembersSerializer,
-                                TeamSerializer)
+from events.models import Event, Team
+from events.serializers import EventSerializer, TeamMembersSerializer, TeamSerializer
+from events.utils import TeamUtil
 
 
 class EventAPIView(GenericAPIView):
@@ -69,51 +69,64 @@ class MemberRegisterAPIView(GenericAPIView):
         return Response(data, status.HTTP_200_OK)
 
 
-class TeamDetailsAPIView(GenericAPIView):
+class TeamDetailsAPIView(GenericAPIView, TeamUtil):
     permission_classes = (IsAuthenticated,)
     serializer_class = EventSerializer
 
-    # utility function to return list of users in a team -> works for both team and individual event
-    def get_participants_json_from_team(self, t):
-        participants = []
-        for u in list(t.user.all()):
-            participant = {
-                "user_id":u.user.id,
-                "first_name":u.user.first_name,
-                "last_name":u.user.last_name,
-                "email":u.user.email,
-            }
-            try:
-                for d in list(u.user.details.all()):
-                    participant["college"] = d.college
-                    participant["mobile"] = d.mobile
-                    break
-            except:
-                pass
-
-            participants.append(participant)
-
-        return participants
-
-    def get(self, request, event_id, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
+        event_id = kwargs.get("event_id")
         user = request.user
-        user_teams = list(user.teams.all())
-        for t in user_teams:
-            if str(t.team.event.id) == event_id:
-                if t.team.event.type == "TEAM":
-                    response = {"team_name":t.team.name}
-                    response['id'] = t.team.id
-                    response['is_registered'] = True
-                    response['team_valid'] = t.team.is_registered # if min and max size are fulfilled
-                    response['members'] = self.get_participants_json_from_team(t.team)
-                    response['event_type'] = t.team.event.type
-                    return Response(response, status.HTTP_200_OK)
-                else:
-                    response = {}
-                    response['is_registered'] = True
-                    response['id'] = t.team.id
-                    response['members'] = self.get_participants_json_from_team(t.team)
-                    response['event_type'] = t.team.event.type
-                    return Response(response, status.HTTP_200_OK)
-        
-        return Response({"is_registered":False}, status.HTTP_200_OK)
+        try:
+            t = user.teams.get(team__event_id=event_id)
+        except Exception:
+            return Response({"is_registered": False}, status.HTTP_200_OK)
+
+        if t.team.event.type == "TEAM":
+            response = {"team_name": t.team.name}
+            response["id"] = t.team.id
+            response["is_registered"] = True
+            response[
+                "team_valid"
+            ] = t.team.is_registered  # if min and max size are fulfilled
+            response["members"] = self.get_participants_json_from_team(t.team)
+            response["event_type"] = t.team.event.type
+            return Response(response, status.HTTP_200_OK)
+        else:
+            response = {}
+            response["is_registered"] = True
+            response["id"] = t.team.id
+            response["members"] = self.get_participants_json_from_team(t.team)
+            response["event_type"] = t.team.event.type
+            return Response(response, status.HTTP_200_OK)
+
+
+class TeamAPIView(GenericAPIView, TeamUtil):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = EventSerializer
+
+    def get(self, request, *args, **kwargs):
+        team_id = kwargs.get("team_id")
+        try:
+            team = Team.objects.get(id=team_id)
+        except Exception:
+            return Response(
+                {"message": "Invalid Team ID"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if team.event.type == "TEAM":
+            response = {"team_name": team.name}
+            response["id"] = team.id
+            response["is_registered"] = True
+            response[
+                "team_valid"
+            ] = team.is_registered  # if min and max size are fulfilled
+            response["members"] = self.get_participants_json_from_team(team)
+            response["event_type"] = team.event.type
+            return Response(response, status.HTTP_200_OK)
+        else:
+            response = {}
+            response["is_registered"] = True
+            response["id"] = team.id
+            response["members"] = self.get_participants_json_from_team(team)
+            response["event_type"] = team.event.type
+            return Response(response, status.HTTP_200_OK)
