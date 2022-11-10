@@ -128,7 +128,7 @@ class TeamDetailsAPIView(GenericAPIView, TeamUtil):
 
 
 class TeamAPIView(GenericAPIView, TeamUtil):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     serializer_class = EventSerializer
 
     def get(self, request, *args, **kwargs):
