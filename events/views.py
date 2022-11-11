@@ -108,23 +108,18 @@ class TeamDetailsAPIView(GenericAPIView, TeamUtil):
         except Exception:
             return Response({"is_registered": False}, status.HTTP_200_OK)
 
+        response = {}
+        response["id"] = t.team.id
+        response["is_registered"] = True
+        response["members"] = self.get_participants_json_from_team(t.team)
+        response["event_type"] = t.team.event.type
+        response[
+            "team_valid"
+        ] = t.team.is_registered  # if min and max size are fulfilled
+
         if t.team.event.type == "TEAM":
             response = {"team_name": t.team.name}
-            response["id"] = t.team.id
-            response["is_registered"] = True
-            response[
-                "team_valid"
-            ] = t.team.is_registered  # if min and max size are fulfilled
-            response["members"] = self.get_participants_json_from_team(t.team)
-            response["event_type"] = t.team.event.type
-            return Response(response, status.HTTP_200_OK)
-        else:
-            response = {}
-            response["is_registered"] = True
-            response["id"] = t.team.id
-            response["members"] = self.get_participants_json_from_team(t.team)
-            response["event_type"] = t.team.event.type
-            return Response(response, status.HTTP_200_OK)
+        return Response(response, status.HTTP_200_OK)
 
 
 class TeamAPIView(GenericAPIView, TeamUtil):
@@ -140,20 +135,12 @@ class TeamAPIView(GenericAPIView, TeamUtil):
                 {"message": "Invalid Team ID"}, status=status.HTTP_400_BAD_REQUEST
             )
 
+        response = {}
+        response["id"] = team.id
+        response["members"] = self.get_participants_json_from_team(team)
+        response["event_type"] = team.event.type
+        response["team_valid"] = team.is_registered  # if min and max size are fulfilled
+
         if team.event.type == "TEAM":
             response = {"team_name": team.name}
-            response["id"] = team.id
-            response["is_registered"] = True
-            response[
-                "team_valid"
-            ] = team.is_registered  # if min and max size are fulfilled
-            response["members"] = self.get_participants_json_from_team(team)
-            response["event_type"] = team.event.type
-            return Response(response, status.HTTP_200_OK)
-        else:
-            response = {}
-            response["is_registered"] = True
-            response["id"] = team.id
-            response["members"] = self.get_participants_json_from_team(team)
-            response["event_type"] = team.event.type
-            return Response(response, status.HTTP_200_OK)
+        return Response(response, status.HTTP_200_OK)
