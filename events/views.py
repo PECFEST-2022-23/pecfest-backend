@@ -118,7 +118,7 @@ class TeamDetailsAPIView(GenericAPIView, TeamUtil):
         ] = t.team.is_registered  # if min and max size are fulfilled
 
         if t.team.event.type == "TEAM":
-            response = {"team_name": t.team.name}
+            response["team_name"] = t.team.name
         return Response(response, status.HTTP_200_OK)
 
 
@@ -142,5 +142,5 @@ class TeamAPIView(GenericAPIView, TeamUtil):
         response["team_valid"] = team.is_registered  # if min and max size are fulfilled
 
         if team.event.type == "TEAM":
-            response = {"team_name": team.name}
+            response["team_name"] = team.name
         return Response(response, status.HTTP_200_OK)
