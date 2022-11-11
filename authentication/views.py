@@ -107,6 +107,8 @@ class LoginAPIView(GenericAPIView):
             data["user_status"] = UserAuthStatus.verified
         else:
             data["user_status"] = UserAuthStatus.completed
+            obj = UserDetails.objects.get(user=user)
+            data["additional_details"] = UserDetailsSerializer(obj).data
 
         data["token"] = AuthToken.objects.create(user)[1]
         data["user"] = UserSerializer(user).data
@@ -188,6 +190,8 @@ class OAuthAPIView(GenericAPIView):
             data["user_status"] = UserAuthStatus.verified
         else:
             data["user_status"] = UserAuthStatus.completed
+            obj = UserDetails.objects.get(user=user)
+            data["additional_details"] = UserDetailsSerializer(obj).data
 
         data["token"] = AuthToken.objects.create(user)[1]
         data["user"] = UserSerializer(user).data
