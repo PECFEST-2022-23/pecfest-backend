@@ -46,9 +46,8 @@ class EventAPIView(GenericAPIView):
         event_id = kwargs.get('event_id')
         if not event_id:
             return Response({"error": "event id is required"}, status.HTTP_400_BAD_REQUEST)
-        data = request.data
         club = request.user.club
-        data["club"] = club.id  # add club id to the data
+        data = {"club" : club.id, **request.data} # add club id to the data
 
         try:
             event = self.get_queryset().get(
