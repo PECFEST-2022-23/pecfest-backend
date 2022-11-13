@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Create your views here.
 
@@ -13,6 +14,10 @@ from rest_framework.response import Response
 class EventAPIView(GenericAPIView):
     permission_classes = (IsAdminUser,)
     serializer_class = EventSerializer
+    parser_classes = (
+        MultiPartParser,
+        FormParser,
+    )
     queryset = Event.objects.all()
 
     def post(self, request):
@@ -28,9 +33,11 @@ class EventAPIView(GenericAPIView):
         return Response(response_data, status.HTTP_201_CREATED)
 
     def delete(self, request, *args, **kwargs):
-        event_id = kwargs.get('event_id')
+        event_id = kwargs.get("event_id")
         if not event_id:
-            return Response({"error": "event id is required"}, status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "event id is required"}, status.HTTP_400_BAD_REQUEST
+            )
         try:
             event = self.get_queryset().get(id=event_id)
         except:
@@ -43,11 +50,13 @@ class EventAPIView(GenericAPIView):
         return Response(response_data, status.HTTP_200_OK)
 
     def patch(self, request, *args, **kwargs):
-        event_id = kwargs.get('event_id')
+        event_id = kwargs.get("event_id")
         if not event_id:
-            return Response({"error": "event id is required"}, status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "event id is required"}, status.HTTP_400_BAD_REQUEST
+            )
         club = request.user.club
-        data = {"club" : club.id, **request.data} # add club id to the data
+        data = {"club": club.id, **request.data}  # add club id to the data
 
         try:
             event = self.get_queryset().get(
