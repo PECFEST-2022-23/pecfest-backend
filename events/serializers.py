@@ -14,6 +14,11 @@ class EventSerializer(serializers.ModelSerializer):
     def get_club_name(self, obj):
         return obj.club.name
 
+    def create(self, validated_data):
+        club = self.context.user.club
+        validated_data["club"] = club.id
+        return super().create(validated_data)
+
 
 class TeamSerializer(serializers.Serializer):
     event_id = serializers.UUIDField(required=True)

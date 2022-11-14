@@ -21,10 +21,9 @@ class EventAPIView(GenericAPIView):
     queryset = Event.objects.all()
 
     def post(self, request):
-        data = request.data
-        club = request.user.club
-        data["club"] = club.id  # add club id to the data
-        serializer = self.get_serializer(data=data, context={"user": request.user})
+        serializer = self.get_serializer(
+            data=request.data, context={"user": request.user}
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()  # save event
 
@@ -56,7 +55,7 @@ class EventAPIView(GenericAPIView):
                 {"error": "event id is required"}, status.HTTP_400_BAD_REQUEST
             )
         club = request.user.club
-        data = {"club": club.id, **request.data}  # add club id to the data
+        # data = {"club": club.id, **request.data}  # add club id to the data
 
         try:
             event = self.get_queryset().get(
@@ -71,7 +70,7 @@ class EventAPIView(GenericAPIView):
         if str(event.club.id) != str(club.id):
             return Response({"error": "access denied"}, status.HTTP_401_UNAUTHORIZED)
         serializer = self.get_serializer(
-            event, data=data, context={"user": request.user}, partial=True
+            event, data=request.data, context={"user": request.user}, partial=True
         )  # create serializer
         serializer.is_valid(raise_exception=True)
         serializer.save()  # update
