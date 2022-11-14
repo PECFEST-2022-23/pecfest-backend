@@ -51,7 +51,7 @@ class AuthenticationUtil:
         plain_message = strip_tags(html_message)
 
         send_mail(
-            subject="Pecfest Verification",
+            subject="Pecfest 2022 Verification",
             message=plain_message,
             from_email=f"Pecfest <{settings.EMAIL_HOST_USER}>",
             recipient_list=[user.email],
