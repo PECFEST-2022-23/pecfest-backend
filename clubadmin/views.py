@@ -73,7 +73,6 @@ class EventAPIView(GenericAPIView):
         serializer = self.get_serializer(
             event, data=request.data, context={"user": request.user}, partial=True
         )  # create serializer
-        serializer.initial_data["club"] = request.user.club.id
         serializer.is_valid(raise_exception=True)
         serializer.save()  # update
 
