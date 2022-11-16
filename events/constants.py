@@ -30,3 +30,4 @@ class CategorySubTypes(DjangoChoices):
     quiz = ChoiceItem(value="QUIZ", label=("quiz event"))
     dramatics = ChoiceItem(value="DRAMATICS", label=("dramatics event"))
     gaming = ChoiceItem(value="GAMING", label=("gaming event"))
+    fun = ChoiceItem(value="FUN", label=("fun event"))
