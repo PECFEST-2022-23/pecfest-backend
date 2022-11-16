@@ -20,7 +20,7 @@ class Event(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50)
     type = models.CharField(
-        max_length=15, choices=EventTypes, default=EventTypes.individual, editable=False
+        max_length=15, choices=EventTypes, default=EventTypes.individual
     )
     category = models.CharField(
         max_length=15, choices=CategoryTypes, default=CategoryTypes.technical
@@ -30,8 +30,8 @@ class Event(models.Model):
     enddatetime = models.DateTimeField()
     venue = models.CharField(max_length=100)
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name="events")
-    max_team_size = models.IntegerField(default=1, editable=False)
-    min_team_size = models.IntegerField(default=1, editable=False)
+    max_team_size = models.IntegerField(default=1)
+    min_team_size = models.IntegerField(default=1)
     image_url = models.ImageField()
     subcategory = models.CharField(
         max_length=15, choices=CategorySubTypes, default=CategorySubTypes.dance

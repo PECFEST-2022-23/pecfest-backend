@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("events", "0008_alter_event_subcategory"),
+        ("events", "0009_alter_event_max_team_size_alter_event_min_team_size_and_more"),
     ]
 
     operations = [
