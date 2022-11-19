@@ -1,3 +1,4 @@
+from authentication.models import UserDetails
 class TeamUtil:
     # utility function to return list of users in a team -> works for both team and individual event
     def get_participants_json_from_team(self, t):
@@ -10,10 +11,9 @@ class TeamUtil:
                 "email": u.user.email,
             }
             try:
-                for d in list(u.user.details.all()):
-                    participant["college"] = d.college
-                    participant["mobile"] = d.mobile
-                    break
+                d = UserDetails.objects.get(user = u.user)
+                participant["college"] = d.college
+                participant["mobile"] = d.mobile
             except:
                 pass
 
