@@ -134,11 +134,10 @@ class ParticipantsAPIView(GenericAPIView):
         else:
             teams = list(event.teamsregistered.all())
             for t in teams:
-                if t.is_registered:
-                    team = {"team_name": t.name}
-                    participants = self.get_participants_json_from_team(t)
-                    team["members"] = participants
-                    response_data.append(team)
+                team = {"team_name": t.name}
+                participants = self.get_participants_json_from_team(t)
+                team["members"] = participants
+                response_data.append(team)
 
         res = {"event_type": event.type, "data": response_data}
 
