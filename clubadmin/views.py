@@ -1,6 +1,7 @@
 from functools import partial
 
 from events.models import Event
+from authentication.models import UserDetails
 from events.serializers import EventSerializer
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
@@ -103,10 +104,9 @@ class ParticipantsAPIView(GenericAPIView):
                 "email": u.user.email,
             }
             try:
-                for d in list(u.user.details.all()):
-                    participant["college"] = d.college
-                    participant["mobile"] = d.mobile
-                    break
+                d = UserDetails.objects.get(user = u.user)
+                participant["college"] = d.college
+                participant["mobile"] = d.mobile    
             except:
                 pass
 
